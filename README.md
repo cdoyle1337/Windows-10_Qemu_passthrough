@@ -1,10 +1,10 @@
-###WIP
-#Efforts to get Windows 10 booting as a guest on the same metal as it originates.
+## WIP
+# Efforts to get Windows 10 booting as a guest on the same metal as it originates.
 - Booting direct from the HD 
 - Utilising a no-touch Secure Boot process, via passthrough, or separate keys
 - Utilise the OEM Licensing Info for Windows 10, via passthrough, or bust
 
-####Current Status: 
+## Current Status: 
 - grub menu appears, but no reference to uefi boot code, so it won't boot the windows partition (Linux installed on second hard drive must have written to boot sector...)
 - might need to readjust the diskpath ID to point directly at the win partition number, or perhaps regen uefi boot stamps from the new VM uefi bios leaving current disk alone
 
@@ -13,7 +13,7 @@ Details appear as efforts proceed
 
 Point physical har drive to Qemu virtual machine to boot from:
 
-###TLDR:
+## TLDR:
 - Build your base VM with virsh/virt-manager, when you get to the HD part, 
 Point Qemu domain xml config directly at the HD path by device-id: 
 - look for path with:
@@ -23,10 +23,10 @@ you will be able to use something like this
 /dev/disk/by-id/ata-ST2000DX001-1CM164_Z1E783H2
 ```
 
-##Attach Pass Through Disk:
+#### Attach Pass Through Disk:
 - More Info found at: https://pve.proxmox.com/wiki/Passthrough_Physical_Disk_to_Virtual_Machine_(VM)
 Identify Disk:
-- Before adding a physical disk to host make note of vendor, serial so that you'll know which disk to share in /dev/disk/by-id/
+#### Before adding a physical disk to host make note of vendor, serial so that you'll know which disk to share in /dev/disk/by-id/
 
 ```
 lshw -class disk -class storage
@@ -45,7 +45,7 @@ lshw -class disk -class storage
 ```
 
 
-Note that device names like /dev/sdc should never be used, as this can change between reboots. Use the stable /dev/disk/by-id paths instead. 
+#### Note that device names like /dev/sdc should never be used, as this can change between reboots. Use the stable /dev/disk/by-id paths instead. 
 - Check by listing all of that directory then look for the disk added by matching serial number from lshw and the physical disk:
 ```
 ls -l /dev/disk/by-id/ata-ST3000DM001-1CH166_Z1F41BLC
@@ -56,12 +56,14 @@ lrwxrwxrwx 1 root root 9 Jan 21 10:10 /dev/disk/by-id/ata-ST3000DM001-1CH166_Z1F
 ls -l /dev/disk/by-id | grep Z1F41BLC
 ```
 
-List disk by-id with lsblk:
+#### List disk by-id with lsblk:
+
 - The lsblk is pre-installed, you can print and map the serial and WWN identifiers of attached disks using the following two commands:
 ```
 lsblk -o +MODEL,SERIAL,WWN
 ls -l /dev/disk/by-id/
 ```
+
 - You can also use an extended one liner to get the path directly:
 ```
 lsblk |awk 'NR==1{print $0" DEVICE-ID(S)"}NR>1{dev=$1;printf $0" ";system("find /dev/disk/by-id -lname \"*"dev"\" -printf \" %p\"");print "";}'|grep -v -E 'part|lvm'
@@ -89,11 +91,10 @@ find /dev/disk/by-id/ -type l|xargs -I{} ls -l {}|grep -v -E '[0-9]$' |sort -k11
 
 
 
-###OEM bundling :
-- more info found at:
-- https://gist.github.com/Informatic/49bd034d43e054bd1d8d4fec38c305ec
+## OEM bundling :
+- more info found at: https://gist.github.com/Informatic/49bd034d43e054bd1d8d4fec38c305ec
 
- ###TLDR: 
+ ## TLDR: 
  ```
  cat /sys/firmware/acpi/tables/SLIC > slic.bin
  cat /sys/firmware/acpi/tables/MSDM > msdm.bin
@@ -106,6 +107,6 @@ find /dev/disk/by-id/ -type l|xargs -I{} ls -l {}|grep -v -E '[0-9]$' |sort -k11
  cp Elitebook840G4_SLIC/ /usr/share/seabios/
  ```
 
-//TODO: Configure Guest Domain XML with proper acpi argument options 
+## //TODO: Configure Guest Domain XML with proper acpi argument options 
 
 
