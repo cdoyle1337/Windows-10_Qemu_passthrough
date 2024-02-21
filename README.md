@@ -1,4 +1,4 @@
-## WIP
+## WIP - This is incomplete and scattered info at this testing phase
 
 # Efforts to get Windows 10 booting and using OEM Licensing as a guest via passthrough with QEMU on the same metal as it originates.
  _Specs: an existing UEFI, Secure Boot'd, Windows 10 installed on it's own dedicated SSD_
