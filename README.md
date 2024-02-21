@@ -114,5 +114,6 @@ find /dev/disk/by-id/ -type l|xargs -I{} ls -l {}|grep -v -E '[0-9]$' |sort -k11
  cp Elitebook840G4_SLIC/ /usr/share/seabios/
  ```
 
+//TODO: Configure Guest Domain XML with proper acpi argument options 
 
 
