@@ -22,20 +22,14 @@ you will be able to use something like this
 /dev/disk/by-id/ata-ST2000DX001-1CM164_Z1E783H2
 ```
 
-More Info found at:
-https://pve.proxmox.com/wiki/Passthrough_Physical_Disk_to_Virtual_Machine_(VM)
-
-Attach Pass Through Disk
-Identify Disk
-
+Attach Pass Through Disk:
+More Info found at: https://pve.proxmox.com/wiki/Passthrough_Physical_Disk_to_Virtual_Machine_(VM)
+Identify Disk:
 Before adding a physical disk to host make note of vendor, serial so that you'll know which disk to share in /dev/disk/by-id/
-lshw
-
-lshw is not installed by default on Proxmox VE (see lsblk for that below), you can install it by executing apt install lshw
-
-lshw -class disk -class storage
 
 ```
+lshw -class disk -class storage
+
            *-disk
                 description: ATA Disk
                 product: ST3000DM001-1CH1
@@ -49,20 +43,18 @@ lshw -class disk -class storage
                 configuration: ansiversion=5 sectorsize=4096
 ```
 
-Note that device names like /dev/sdc should never be used, as this can change between reboots. Use the stable /dev/disk/by-id paths instead. Check by listing all of that directory then look for the disk added by matching serial number from lshw and the physical disk:
 
+Note that device names like /dev/sdc should never be used, as this can change between reboots. Use the stable /dev/disk/by-id paths instead. Check by listing all of that directory then look for the disk added by matching serial number from lshw and the physical disk:
 ```
 ls -l /dev/disk/by-id/ata-ST3000DM001-1CH166_Z1F41BLC
 lrwxrwxrwx 1 root root 9 Jan 21 10:10 /dev/disk/by-id/ata-ST3000DM001-1CH166_Z1F41BLC -> ../../sda
 ```
-
 or try
 ```
 ls -l /dev/disk/by-id | grep Z1F41BLC
 ```
 
-List disk by-id with lsblk
-
+List disk by-id with lsblk:
 The lsblk is pre-installed, you can print and map the serial and WWN identifiers of attached disks using the following two commands:
 ```
 lsblk -o +MODEL,SERIAL,WWN
@@ -81,7 +73,6 @@ sdd                            8:48   0   1.8T  0 disk   /dev/disk/by-id/wwn-0x5
 ```
 
 make-lsblk-list-devices-by-id
-Short List
 ```
 find /dev/disk/by-id/ -type l|xargs -I{} ls -l {}|grep -v -E '[0-9]$' |sort -k11|cut -d' ' -f9,10,11,12
 
