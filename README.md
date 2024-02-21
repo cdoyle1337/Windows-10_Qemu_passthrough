@@ -1,52 +1,49 @@
 ## WIP
 
 # Efforts to get Windows 10 booting and using OEM Licensing as a guest via passthrough with QEMU on the same metal as it originates.
-#### Specs: Existing UEFI Secure Boot install of Windows 10 with a dedicated SSD
-  * Booting direct from the HD 
-  * Utilising a no-touch Secure Boot process, via passthrough, or separate keys
-  * Utilise the OEM Licensing Info for Windows 10, via passthrough, or bust
+ _Specs: an existing UEFI, Secure Boot'd, Windows 10 installed on it's own dedicated SSD_
+   ##### Goal: 
+   * Booting direct from the HD 
+   * Utilising a no-touch Secure Boot process, via passthrough, or separate keys
+   * Utilise the OEM Licensing Info for Windows 10, via passthrough, or bust
 
-### Current Status: 
+#### Current Status: 
   * grub menu appears, but no reference to uefi boot code, so it won't boot the windows partition (Linux installed on second hard drive must have written to boot sector...)
   * might need to readjust the diskpath ID to point directly at the win partition number, or perhaps regen uefi boot stamps from the new VM uefi bios leaving current disk alone
   * Details appear as efforts proceed
 
 
-## Point physical har drive to Qemu virtual machine to boot from:
-
-##### TLDR:
+## Attach Pass Through Disk[^1]:
+#### Point physical hard drive to Qemu virtual machine to boot:
+ ##### TLDR:
  * Build your base VM with virsh/virt-manager, when you get to the HD part, 
  * Use the HD path by device-id.
-  
-### Look for path to use by ID with:
- _you will be able to use something like this_
- ```
- ls -lhtra /dev/disk/by-id/
- /dev/disk/by-id/ata-ST2000DX001-1CM164_Z1E783H2
- ```
+ #### Look for path to use by ID with:
+  _you will be able to use something like this_
+  ```
+  ls -lhtra /dev/disk/by-id/
+  /dev/disk/by-id/ata-ST2000DX001-1CM164_Z1E783H2
+  ```
 
-### Attach Pass Through Disk[^1]:
-
-### Identify Disk:
- * _Before adding a physical disk to host make note of vendor, serial so that you'll know which disk to share in /dev/disk/by-id/_
- ```
- lshw -class disk -class storage
-            *-disk
-                 description: ATA Disk
-                 product: ST3000DM001-1CH1
-                 vendor: Seagate
-                 physical id: 0.0.0
-                 bus info: scsi@3:0.0.0
-                 logical name: /dev/sda
-                 version: CC27
-                 serial: Z1F41BLC
-                 size: 2794GiB (3TB)
-                 configuration: ansiversion=5 sectorsize=4096
- ```
+ #### Identify Disk:
+  * _Before adding a physical disk to host make note of vendor, serial so that you'll know which disk to share in /dev/disk/by-id/_
+  ```
+  lshw -class disk -class storage
+             *-disk
+                  description: ATA Disk
+                  product: ST3000DM001-1CH1
+                  vendor: Seagate
+                  physical id: 0.0.0
+                  bus info: scsi@3:0.0.0
+                  logical name: /dev/sda
+                  version: CC27
+                  serial: Z1F41BLC
+                  size: 2794GiB (3TB)
+                  configuration: ansiversion=5 sectorsize=4096
+  ```
   _Note that device names like /dev/sdc should never be used, as this can change between reboots. Use the stable /dev/disk/by-id paths instead._ 
-
-
- ### Check by listing all of that directory then look for the disk added by matching serial number from lshw and the physical disk:
+  
+ #### Check by listing all of that directory then look for the disk added by matching serial number from lshw and the physical disk:
  ```
  ls -l /dev/disk/by-id/ata-ST3000DM001-1CH166_Z1F41BLC
  lrwxrwxrwx 1 root root 9 Jan 21 10:10 /dev/disk/by-id/ata-ST3000DM001-1CH166_Z1F41BLC -> ../../sda
@@ -56,7 +53,7 @@
  ls -l /dev/disk/by-id | grep Z1F41BLC
  ```
 
-### List disk by-id with lsblk:
+#### List disk by-id with lsblk:
  * The lsblk is pre-installed, you can print and map the serial and WWN identifiers of attached disks using the following two commands:
  ```
  lsblk -o +MODEL,SERIAL,WWN
@@ -72,7 +69,7 @@
  sdc                            8:32   0 931.5G  0 disk   /dev/disk/by-id/usb-JMicron_Generic_0123456789ABCDEF-0:0
  sdd                            8:48   0   1.8T  0 disk   /dev/disk/by-id/wwn-0x5000c500661eeebd /dev/disk/by-id/ata-ST2000DX001-1CM164_Z1E783H2
  ```
- * Make-lsblk-list-devices-by-id
+ * Make-lsblk-list-devices-by-id:
  ```
  find /dev/disk/by-id/ -type l|xargs -I{} ls -l {}|grep -v -E '[0-9]$' |sort -k11|cut -d' ' -f9,10,11,12
 
@@ -86,10 +83,8 @@
 
 
 
-
-
 ## OEM bundling [^2]:
- #### TLDR: 
+ ##### TLDR: 
  ```
  cat /sys/firmware/acpi/tables/SLIC > slic.bin
  cat /sys/firmware/acpi/tables/MSDM > msdm.bin
@@ -104,7 +99,7 @@
 
 
 ### //TODO: Configure Guest Domain XML with proper acpi argument options[^3]: 
- #### TLDR: 
+ ##### TLDR: 
  ```
  ```
  
